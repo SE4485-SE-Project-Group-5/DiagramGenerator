@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "DiagramGenerator"
+version = "0.1.0"
+description = ""
+authors = ["Dawson Booth <github@dawsonbooth.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+flask = "^1.1.2"
+flask_sockets = "^0.2.1"
+flask_cors = "^3.0.9"
+pillow = "^7.2.0"
+pynput = "1.6.8" # https://stackoverflow.com/questions/63681770/getting-error-when-using-pynput-with-pyinstaller
+graphviz = "^0.14.1"
+pymongo = "^3.11.0"
+psutil = "^5.7.2"
+pywebview = "^3.3.4"
+pythonnet = "^2.5.1"
+pywin32 = "^228"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.0.2"
+autopep8 = "^1.5.4"
+pylint = "^2.6.0"
+rope = "^0.17.0"
+pyclean = "^2.0.0"
+pyinstaller = "^4.0"
+invoke = "^1.4.1"
+wget = "^3.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

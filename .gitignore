@@ -1,0 +1,25 @@
+# IDE
+.idea/
+.vscode/
+
+# Bytecode
+__pycache__/
+
+# Icons
+static/business_process_diagram*
+
+# Build
+node_modules/
+*.app
+out/
+build/
+dist/
+lib/
+*.spec
+
+# Swimlane BPD Final Files
+bpd
+bpd.pdf
+
+# Misc
+.DS_Store
