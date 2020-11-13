@@ -11,6 +11,8 @@ from geventwebsocket.handler import WebSocketHandler
 import pymongo
 from pymongo import MongoClient
 from getmac import get_mac_address as gma
+import diagram as diagram
+import example_bp
 
 PORT = 43968
 URL = "localhost"
@@ -18,6 +20,7 @@ URL = "localhost"
 client = MongoClient("mongodb+srv://admin:mongodb9143@cluster0.femb8.mongodb.net/group5db?retryWrites=true&w=majority")
 db = client['group5db']
 collections = db.list_collection_names()
+collection = collections[2]
 
 class MESSAGE(Enum):
     FETCH_MAC_ADDRESSES = "Fetch MAC Addresses"
@@ -63,9 +66,11 @@ def handle_message(socket):
         if event["message"] == MESSAGE.GENERATE_DIAGRAM.value:
             try:
                 # TODO: Generate diagram using data from MongoDB Cloud
+                analysis = example_bp.get_analysis()
+                # user_details = example_bp.get_user_details()
                 response = json.dumps({
                     "message": event["message"],
-                    "data": "Successfully generated diagram"
+                    "data": diagram.generateDiagram(analysis)
                 })
             except Exception as e:
                 print(e)
@@ -75,10 +80,11 @@ def handle_message(socket):
                 })
         elif event["message"] == MESSAGE.FETCH_MAC_ADDRESSES.value:
             # TODO: Fetch MAC addresses from MongoDB Cloud
-            response = json.dumps({
-                "message": event["message"],
-                "data": [collections]
-            })
+            for collection in collections:
+                response = json.dumps({
+                    "message": event["message"],
+                    "data": [collection]
+                })
         if response:
             socket.send(response)
 
