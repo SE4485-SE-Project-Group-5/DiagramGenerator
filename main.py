@@ -8,10 +8,16 @@ from flask_cors import CORS
 from flask_sockets import Sockets
 from gevent import pywsgi
 from geventwebsocket.handler import WebSocketHandler
+import pymongo
+from pymongo import MongoClient
+from getmac import get_mac_address as gma
 
 PORT = 43968
 URL = "localhost"
 
+client = MongoClient("mongodb+srv://admin:mongodb9143@cluster0.femb8.mongodb.net/group5db?retryWrites=true&w=majority")
+db = client['group5db']
+collections = db.list_collection_names()
 
 class MESSAGE(Enum):
     FETCH_MAC_ADDRESSES = "Fetch MAC Addresses"
@@ -71,7 +77,7 @@ def handle_message(socket):
             # TODO: Fetch MAC addresses from MongoDB Cloud
             response = json.dumps({
                 "message": event["message"],
-                "data": ["test mac 1", "test mac 2"]
+                "data": [collections]
             })
         if response:
             socket.send(response)
