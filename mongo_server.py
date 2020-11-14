@@ -44,7 +44,7 @@ def start_server():
         os.makedirs(db_path)
 
     if not _server:
-        log_path = os.path.join(MONGO, 'wtfisgoingon')
+        log_path = os.path.join(MONGO, 'mongo.server.log')
         _server = subprocess.Popen([_daemon_path, '--config', _config_file, '--dbpath', db_path, '--logpath', log_path],
                                    text=True)
 

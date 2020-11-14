@@ -5,9 +5,13 @@ from pprint import pprint
 from icons_helper import find_icon_from_path
 from ApplicationTimeLog import ApplicationTimeLog
 from DefaultDict import DefaultDict
-from mongo_client import get_collection
+from mongo_client import get_collection, cloud_db_name, WINDOWS_DATABASE_NAME, EVENT_DATABASE_NAME
 from mongo_server import close_server
+from getmac import get_mac_address as gma
 
+
+cloud_db_name = 'group5db'
+cloud_collection = str(gma())
 
 def read_events(start: datetime, end: datetime):
     """
@@ -27,18 +31,18 @@ def read_events(start: datetime, end: datetime):
 
     events = []
     # Get events for start date, where time needs to be considered
-    events += get_collection("group5db", str(start.date())
+    events += get_collection(cloud_db_name, cloud_collection
                              ).find({'timestamp': {'$gte': start}})
     # Get events for all intermediate dates
     start += timedelta(days=1)
     while start.date() < end.date():
         # print(start.date())
-        events += get_collection("group5db",
-                                 str(start.date())).find({})
+        events += get_collection(cloud_db_name,
+                                 cloud_collection).find({})
         start += timedelta(days=1)
     # Get events for end date, where time needs to be considered
-    events += get_collection("group5db",
-                             str(start.date())).find({'timestamp': {'$lte': end}})
+    events += get_collection(cloud_db_name,
+                             cloud_collection).find({'timestamp': {'$lte': end}})
 
     return events
 
@@ -61,18 +65,18 @@ def read_processes(start: datetime, end: datetime):
 
     processes = []
     # Get processes for start date, where time needs to be considered
-    processes += get_collection("group5db",
-                                str(start.date())).find({'timestamp': {'$gte': start}})
+    processes += get_collection(cloud_db_name,
+                                cloud_collection).find({'timestamp': {'$gte': start}})
     # Get processes for all intermediate dates
     start += timedelta(days=1)
     while start.date() < end.date():
         # print(start.date())
-        processes += get_collection("group5db",
-                                    str(start.date())).find({})
+        processes += get_collection(cloud_db_name,
+                                    cloud_collection).find({})
         start += timedelta(days=1)
     # Get processes for end date, where time needs to be considered
-    processes += get_collection("group5db",
-                                str(start.date())).find({'timestamp': {'$lte': end}})
+    processes += get_collection(cloud_db_name,
+                                cloud_collection).find({'timestamp': {'$lte': end}})
 
     return processes
 

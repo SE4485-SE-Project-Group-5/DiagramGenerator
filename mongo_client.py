@@ -1,9 +1,15 @@
 import datetime
 import pymongo
+from pymongo import MongoClient
 from mongo_server import start_server, close_server
+from getmac import get_mac_address as gma
 
-_client_connection = None
+EVENT_DATABASE_NAME = 'events'
+WINDOWS_DATABASE_NAME = 'windows'
 
+cloud_client = None
+cloud_db_name = 'group5db'
+cloud_collection = str(gma())
 
 def open_client(timeout=30000):
     """
@@ -15,13 +21,12 @@ def open_client(timeout=30000):
     :raise: An Exception if the client cannot connect.
     """
 
-    global _client_connection
+    global cloud_client
 
     # If client was not already made
-    if not _client_connection:
+    if not cloud_client:
         # Attempt a client connection
-        _client_connection = client = pymongo.MongoClient(
-            "mongodb+srv://admin:mongodb9143@cluster0.femb8.mongodb.net/group5db?retryWrites=true&w=majority")
+        cloud_client = client = MongoClient("mongodb+srv://admin:mongodb9143@cluster0.femb8.mongodb.net/group5db?retryWrites=true&w=majority")
 
         try:
             # Causes this thread to block until client has connected or not
@@ -34,7 +39,7 @@ def open_client(timeout=30000):
 
     # Client instance already created
     else:
-        return _client_connection
+        return cloud_client
 
 
 def close_client():
@@ -46,8 +51,8 @@ def close_client():
     :return: None
     :raise: An Exception if the client was never created or opened.
     """
-    if _client_connection:
-        _client_connection.close()
+    if cloud_client:
+        cloud_client.close()
     else:
         raise Exception('no existing or open client to close')
 
@@ -74,10 +79,16 @@ def log_event(event: dict):
 
     # Get handle on collection for the day
     date = str(event['timestamp'].date())
-    collection_handle = get_collection("group5db", date)
+    cloud_collection_handle = get_collection(cloud_db_name, cloud_collection)
 
-    # Insert the event as a document in the collection; return its ID
-    return collection_handle.insert_one(event).inserted_id
+    try:
+        # Insert the event as a document in the collection; return its ID
+        # print("Successfully inserted to both local and cloud DB")
+        return cloud_collection_handle.insert_one(event).inserted_id
+    except Exception as e:
+        print(e)
+        print("Failed to upload to cloud DB")
+        return cloud_collection_handle.insert_one(event).inserted_id
 
 
 def log_processes(processes: dict):
@@ -108,18 +119,18 @@ def log_processes(processes: dict):
 
     # Get handle on collection for the day
     date = str(processes['timestamp'].date())
-    collection_handle = get_database("group5db")[date]
+    cloud_collection_handle = get_database(cloud_db_name)[cloud_collection]
 
     # Insert the event as a document in the collection; return its ID
-    return collection_handle.insert_one(processes).inserted_id
+    return cloud_collection_handle.insert_one(processes).inserted_id
 
 
 def get_database(database: str):
-    return open_client()["group5db"]
+    return open_client()[database]
 
 
 def get_collection(database: str, collection: str):
-    return open_client()["group5db"]["00:0c:29:de:a0:0d"]
+    return open_client()[database][collection]
 
 
 if __name__ == '__main__':
@@ -129,23 +140,23 @@ if __name__ == '__main__':
     open_client(timeout=3000)
     pid = random.randint(10000, 65000)
     hwnd = random.randint(100000000, 199999999)
-    print('Inserted new mouse event: {}'.format(
-        log_event({
-            'process_obj': {'pid': pid, 'name': 'UnnamedProcess64.exe',
-                            'exe': '/path/to/exe/UnnamedProcess64.exe', 'username': 'Current User'},
-            'window': {'hwnd': hwnd, 'title': 'Process Window Title'},
-            'event': 'mouse'
-        })
-    ))
-    print('Inserted window event: {}'.format(
-        log_processes({
-            str(pid): {
-                'process_obj': {'pid': pid, 'name': 'UnnamedProcess64.exe',
-                                'exe': '/path/to/exe/UnnamedProcess64.exe', 'username': 'Current User'},
-                'windows': [{'hwnd': hwnd, 'title': 'Process Window Title'}]
-            }
-        })
-    ))
+    # print('Inserted new mouse event: {}'.format(
+    #     log_event({
+    #         'process_obj': {'pid': pid, 'name': 'UnnamedProcess64.exe',
+    #                         'exe': '/path/to/exe/UnnamedProcess64.exe', 'username': 'Current User'},
+    #         'window': {'hwnd': hwnd, 'title': 'Process Window Title'},
+    #         'event': 'mouse'
+    #     })
+    # ))
+    # print('Inserted window event: {}'.format(
+    #     log_processes({
+    #         str(pid): {
+    #             'process_obj': {'pid': pid, 'name': 'UnnamedProcess64.exe',
+    #                             'exe': '/path/to/exe/UnnamedProcess64.exe', 'username': 'Current User'},
+    #             'windows': [{'hwnd': hwnd, 'title': 'Process Window Title'}]
+    #         }
+    #     })
+    # ))
     close_client()
     input('Waiting for signal to close db server...')
     close_server()
@@ -155,4 +166,4 @@ else:
     t = 90000
     print('Opening MongoDB client (Timeout = {} seconds)...'.format(t / 1000))
     open_client(timeout=t)
-    print('Client connected.')
+    print('Client connected: ', cloud_client)

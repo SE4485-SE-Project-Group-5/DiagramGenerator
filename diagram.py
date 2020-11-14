@@ -33,7 +33,7 @@ def generateDiagram(app_info):
 
     directory = os.path.abspath(os.path.join(BUNDLE_DIR, 'static'))
     homepath = os.path.abspath(os.path.join(BUNDLE_DIR, 'static', 'icons'))
-    g = Digraph('G', filename='test_export_json', directory=directory)
+    g = Digraph('G', filename='business_process_diagram', directory=directory, body=docs)
     g.attr(rankdir='TB', size='8,5')
     fontname = "Helvetica"
 
