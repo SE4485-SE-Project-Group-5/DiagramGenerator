@@ -65,18 +65,18 @@ def read_processes(start: datetime, end: datetime):
 
     processes = []
     # Get processes for start date, where time needs to be considered
-    processes += get_collection(cloud_db_name,
-                                cloud_collection).find({'timestamp': {'$gte': start}})
+    processes += get_collection(WINDOWS_DATABASE_NAME,
+                                str(start.date())).find({'timestamp': {'$gte': start}})
     # Get processes for all intermediate dates
     start += timedelta(days=1)
     while start.date() < end.date():
         # print(start.date())
-        processes += get_collection(cloud_db_name,
-                                    cloud_collection).find({})
+        processes += get_collection(WINDOWS_DATABASE_NAME,
+                                    str(start.date())).find({})
         start += timedelta(days=1)
     # Get processes for end date, where time needs to be considered
-    processes += get_collection(cloud_db_name,
-                                cloud_collection).find({'timestamp': {'$lte': end}})
+    processes += get_collection(WINDOWS_DATABASE_NAME,
+                                str(start.date())).find({'timestamp': {'$lte': end}})
 
     return processes
 

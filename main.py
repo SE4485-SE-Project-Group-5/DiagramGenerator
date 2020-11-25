@@ -22,17 +22,6 @@ URL = "localhost"
 client = MongoClient("mongodb+srv://admin:mongodb9143@cluster0.femb8.mongodb.net/group5db?retryWrites=true&w=majority")
 db = client['group5db']
 collections = db.list_collection_names()
-# cursor = collections.find()
-# mongo_docs = list(cursor)
-# mongo_docs = mongo_docs[:1]
-# docs = pandas.DataFrame(columns=[])
-
-# for num, doc in enumerate(mongo_docs):
-#     doc["_id"] = str(doc["_id"])
-#     doc_id = doc["_id"]
-#     series_obj = pandas.Series(doc, name=doc_id)
-#     docs = docs.append(series_obj)
-#     docs.to_json("test_export_json.json")
 
 class MESSAGE(Enum):
     FETCH_MAC_ADDRESSES = "Fetch MAC Addresses"
@@ -93,11 +82,10 @@ def handle_message(socket):
                 })
         elif event["message"] == MESSAGE.FETCH_MAC_ADDRESSES.value:
             # TODO: Fetch MAC addresses from MongoDB Cloud
-           # for collection in collections:
                 for collection in collections:
                     response = json.dumps({
                     "message": event["message"],
-                    "data": [collection]
+                    "data": [collections[0]]
                     })
         if response:
             socket.send(response)
